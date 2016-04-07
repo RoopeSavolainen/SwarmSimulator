@@ -1,14 +1,100 @@
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import QWidget, QFileDialog, QMessageBox
+from PyQt5.QtCore import pyqtSlot, pyqtSignal
 from PyQt5 import uic
+from simulation import Simulation
 
 class ApplicationWidget(QWidget):
 
-    def __init__(self):
+    def __init__(self, params):
         super().__init__()
         self.window = uic.loadUi("src/applicationwindow.ui")
+        self.simulation = Simulation(params, self.window.simulation_canvas)
 
+        self.update_parameters()
 
+        # Setup signals for parameter sliders and buttons
+        self.window.slider_alignment.valueChanged.connect(self.sliders_updated)
+        self.window.slider_cohesion.valueChanged.connect(self.sliders_updated)
+        self.window.slider_separation.valueChanged.connect(self.sliders_updated)
+        self.window.slider_boid_count.valueChanged.connect(self.sliders_updated)
+
+        self.window.btn_load.clicked.connect(self.load_parameters)
+        self.window.btn_save.clicked.connect(self.save_parameters)
+        self.window.btn_apply.clicked.connect(self.apply_settings)
+
+        self.window.btn_start.clicked.connect(self.start_simulation)
+        self.window.btn_pause.clicked.connect(self.pause_simulation)
+        self.window.btn_stop.clicked.connect(self.stop_simulation)
+
+    
     def show(self):
         self.window.show()
     
+    
+    @pyqtSlot()
+    def sliders_updated(self):
+        self.window.lab_boid_count.setText("Amount of boids: {0:3d}".format(self.window.slider_boid_count.value()))
+        self.window.lab_alignment.setText("Alignment weight: {0:2d}".format(self.window.slider_alignment.value()))
+        self.window.lab_cohesion.setText("Cohesion weight: {0:2d}".format(self.window.slider_cohesion.value()))
+        self.window.lab_separation.setText("Separation weight: {0:2d}".format(self.window.slider_separation.value()))
+
+
+    def update_parameters(self):
+        self.window.slider_boid_count.setValue(self.simulation.params.boid_count)
+        self.window.slider_alignment.setValue(self.simulation.params.weight_alignment)
+        self.window.slider_cohesion.setValue(self.simulation.params.weight_cohesion)
+        self.window.slider_separation.setValue(self.simulation.params.weight_separation)
+
+        self.sliders_updated()
+
+
+    @pyqtSlot()
+    def save_parameters(self):
+        file_name = QFileDialog.getSaveFileName()[0]
+        if file_name == "":
+            return
+        try:
+            self.simulation.params.save_to_file(file_name)
+        except Exception as e:
+            msg = QMessageBox(self.window)
+            msg.setText("The configuration could not be saved.")
+            msg.show()
+
+
+    @pyqtSlot()
+    def load_parameters(self):
+        file_name = QFileDialog.getOpenFileName()[0]
+        if file_name == "":
+            return
+        try:
+            self.simulation.params.load_from_file(file_name)
+            self.update_parameters()
+        except Exception as e:
+            msg = QMessageBox(self.window)
+            msg.setText("The configuration could not be loaded {}".format(str(e)))
+            msg.show()
+
+    
+    @pyqtSlot()
+    def apply_settings(self):
+        self.simulation.params.boid_count = self.window.slider_boid_count.value()
+        self.simulation.params.weight_alignment = self.window.slider_alignment.value()
+        self.simulation.params.weight_cohesion = self.window.slider_cohesion.value()
+        self.simulation.params.weight_separation = self.window.slider_separation.value()
+
+    
+    @pyqtSlot()
+    def start_simulation(self):
+        self.simulation.start_simulation()
+        self.window.btn_start.setText("Start")
+    
+    @pyqtSlot()
+    def pause_simulation(self):
+        self.simulation.pause_simulation()
+        self.window.btn_start.setText("Continue")
+    
+    @pyqtSlot()
+    def stop_simulation(self):
+        self.simulation.stop_simulation()
+
 
