@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QFileDialog, QMessageBox
-from PyQt5.QtCore import pyqtSlot, pyqtSignal
+from PyQt5.QtCore import pyqtSlot, QTimer
 from PyQt5 import uic
 from simulation import Simulation
 
@@ -25,6 +25,12 @@ class ApplicationWidget(QWidget):
         self.window.btn_start.clicked.connect(self.start_simulation)
         self.window.btn_pause.clicked.connect(self.pause_simulation)
         self.window.btn_stop.clicked.connect(self.stop_simulation)
+
+        # Timer to control simulation updates
+        self.timer = QTimer()
+        self.timer.setInterval(1000/60)
+        self.timer.timeout.connect(self.simulation.refresh_canvas)
+        self.timer.start()
 
     
     def show(self):

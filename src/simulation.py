@@ -1,6 +1,6 @@
 from parameters import Parameters
 from boid import Boid
-from PyQt5.QtCore import QTimer, pyqtSlot
+from PyQt5.QtCore import pyqtSlot
 
 
 class Simulation:
@@ -11,11 +11,6 @@ class Simulation:
     def __init__(self, params, canvas):
         self.params = params
         self.canvas = canvas
-
-        self.timer = QTimer()
-        self.timer.setInterval(1000/60)
-        self.timer.timeout.connect(self.refresh_canvas)
-        self.timer.start()
 
     def reset(self):
         self.running = False
