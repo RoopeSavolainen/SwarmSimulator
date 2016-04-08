@@ -8,33 +8,22 @@ class Simulation:
     boids = []
     params = None
 
-    def __init__(self, params, canvas):
+    def __init__(self, params):
         self.params = params
-        self.canvas = canvas
+        self.reset()
 
     def reset(self):
-        self.running = False
         self.boids = []
-        for i in range(params.boid_count):
+        for i in range(self.params.boid_count):
             self.boids.append(Boid(0, 0, self.params))
 
 
-    @pyqtSlot()
-    def refresh_canvas(self):
-        pass
-
-    def reload_config(self, params):
-        pass
-
-
-    def start_simulation(self):
-        self.running = True
-
-
-    def pause_simulation(self):
-        self.running = False
+    def refresh(self):
+        for boid in self.boids:
+            boid.update_self()
 
 
     def stop_simulation(self):
         self.reset()
-        self.running = False
+
+

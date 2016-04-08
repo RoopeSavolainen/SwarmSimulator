@@ -1,12 +1,15 @@
 import sys
-import ui
-from PyQt5.QtWidgets import QApplication
+from ui import ApplicationWidget
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import QApplication, QGraphicsScene
 import os.path
 
 from parameters import Parameters
 
+
 def main():
     application = QApplication(sys.argv)
+    application.quitOnLastWindowClosed = True
 
     params = Parameters()
     if os.path.isfile("default.cfg"):
@@ -16,7 +19,7 @@ def main():
             # Even if the operation fails the object should still be usable.
             pass
 
-    window = ui.ApplicationWidget(params)
+    window = ApplicationWidget(params)
     window.show()
 
     sys.exit(application.exec_())
@@ -24,4 +27,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 

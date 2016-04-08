@@ -1,14 +1,15 @@
-from PyQt5.QtWidgets import QWidget, QFileDialog, QMessageBox
-from PyQt5.QtCore import pyqtSlot, QTimer
+from PyQt5.QtWidgets import QWidget, QFileDialog, QMessageBox, QGraphicsScene
+from PyQt5.QtCore import Qt, pyqtSlot, QTimer
 from PyQt5 import uic
 from simulation import Simulation
 
-class ApplicationWidget(QWidget):
+class ApplicationWidget:
+
+    status = "STOPPED"
 
     def __init__(self, params):
-        super().__init__()
         self.window = uic.loadUi("src/applicationwindow.ui")
-        self.simulation = Simulation(params, self.window.simulation_canvas)
+        self.simulation = Simulation(params)
 
         self.update_parameters()
 
@@ -26,17 +27,46 @@ class ApplicationWidget(QWidget):
         self.window.btn_pause.clicked.connect(self.pause_simulation)
         self.window.btn_stop.clicked.connect(self.stop_simulation)
 
+        self.scene = self.create_scene()
+
         # Timer to control simulation updates
         self.timer = QTimer()
         self.timer.setInterval(1000/60)
-        self.timer.timeout.connect(self.simulation.refresh_canvas)
+        self.timer.timeout.connect(self.refresh_simulation)
         self.timer.start()
 
-    
+        # The program segfaulted when exiting due to some dark GC magic. This fixes it
+        self.window.close = self.clean_exit
+
+
     def show(self):
         self.window.show()
-    
-    
+
+
+    def create_scene(self):
+
+        scene = QGraphicsScene()
+        scene.destroyed.connect(self.clean_exit)
+                
+        for boid in self.simulation.boids:
+            scene.addItem(boid)
+        
+        self.window.simulation_canvas.setScene(scene)
+        return scene
+
+
+    @pyqtSlot()
+    def clean_exit(self, obj):
+        pass
+
+
+    @pyqtSlot()
+    def refresh_simulation(self):
+        if self.status == "RUNNING":
+            self.simulation.refresh()
+        self.scene.invalidate()
+
+
     @pyqtSlot()
     def sliders_updated(self):
         self.window.lab_boid_count.setText("Amount of boids: {0:3d}".format(self.window.slider_boid_count.value()))
@@ -91,16 +121,44 @@ class ApplicationWidget(QWidget):
     
     @pyqtSlot()
     def start_simulation(self):
-        self.simulation.start_simulation()
-        self.window.btn_start.setText("Start")
+        if self.status == "STOPPED" or self.status == "PAUSED":
+            if self.status == "STOPPED":
+                self.simulation.reset()
+                self.scene = self.create_scene()
+
+            self.window.btn_start.setText("Start")
+            self.window.lab_status.setText("Simulation running.")
+            
+            self.window.btn_start.setEnabled(False)
+            self.window.btn_pause.setEnabled(True)
+            self.window.btn_stop.setEnabled(True)
+            
+            self.status = "RUNNING"
+
     
+
     @pyqtSlot()
     def pause_simulation(self):
-        self.simulation.pause_simulation()
-        self.window.btn_start.setText("Continue")
+        if self.status == "RUNNING":
+            self.window.btn_start.setText("Continue")
+            self.window.lab_status.setText("Simulation paused.")
+            
+            self.window.btn_start.setEnabled(True)
+            self.window.btn_pause.setEnabled(False)
+            self.window.btn_stop.setEnabled(True)
+
+            self.status = "PAUSED"
     
+
     @pyqtSlot()
     def stop_simulation(self):
-        self.simulation.stop_simulation()
+        if self.status == "RUNNING" or self.status == "PAUSED":
+            self.window.btn_start.setText("Start")
+            self.window.lab_status.setText("Simulation stopped.")
 
+            self.window.btn_start.setEnabled(True)
+            self.window.btn_pause.setEnabled(False)
+            self.window.btn_stop.setEnabled(False)
+
+            self.status = "STOPPED"
 

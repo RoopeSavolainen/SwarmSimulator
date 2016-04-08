@@ -1,18 +1,23 @@
-class Boid:
+from PyQt5.QtWidgets import QGraphicsItem
+from PyQt5.QtGui import QPainter, QBrush
+from PyQt5.QtCore import QRectF, Qt
+
+import random
+
+
+class Boid(QGraphicsItem):
 
     # Position
     x = None
     y = None
 
     # Velocity
-    _vx = None
-    _vy = None
+    vx = None
+    vy = None
 
-    '''
     # Acceleration
-    _ax = None
-    _ay = None
-    '''
+    ax = None
+    ay = None
 
     parameters = None
 
@@ -21,19 +26,29 @@ class Boid:
         self.x = x
         self.y = y
 
-        self._vx = 0
-        self._vy = 0
+        super(Boid, self).__init__()
 
-        '''
-        self._ax = 0
-        self._ay = 0
-        '''
+        self.vx = random.randint(-5,5)
+        self.vy = random.randint(-5,5)
+
+        self.ax = 0
+        self.ay = 0
 
         self.parameters = parameters
 
+    
+    def paint(self, painter, options, widget):
+        painter.setRenderHint(QPainter.Antialiasing)
+        painter.drawEllipse(self.x, self.y, 10, 10)
 
-    def update_self():
-        pass
+
+    def boundingRect(self):
+        return QRectF(self.x-5, self.y-5, 10, 10)
+    
+
+    def update_self(self):
+        self.x += self.vx
+        self.y += self.vy
 
 
     def calculate_acceleration():
