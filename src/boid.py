@@ -21,6 +21,7 @@ class Boid(QGraphicsItem):
 
     parameters = None
 
+    mass = 1
 
     def __init__(self, x, y, parameters):
         self.x = x
@@ -36,7 +37,8 @@ class Boid(QGraphicsItem):
 
         self.parameters = parameters
 
-    
+    # paint() and boundingRect() are QGraphicsItem methods
+
     def paint(self, painter, options, widget):
         painter.setRenderHint(QPainter.Antialiasing)
         painter.drawEllipse(self.x, self.y, 10, 10)
@@ -46,7 +48,7 @@ class Boid(QGraphicsItem):
         return QRectF(self.x-5, self.y-5, 10, 10)
     
 
-    def update_self(self):
+    def update_self(self, neighbours):
         self.x += self.vx
         self.y += self.vy
 
