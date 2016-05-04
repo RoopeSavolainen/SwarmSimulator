@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QGraphicsItem
 from PyQt5.QtGui import QPainter, QBrush
-from PyQt5.QtCore import QRectF, Qt
+from PyQt5.QtCore import QPointF, QRectF, Qt
 
 import random, math
 
@@ -22,11 +22,11 @@ class Boid(QGraphicsItem):
     parameters = None
 
     max_speed = 5
-    max_accel = 5
+    max_accel = 0.5
 
-    def __init__(self, x, y, parameters):
-        self.x = x
-        self.y = y
+    radius = 5
+
+    def __init__(self, parameters):
 
         super(Boid, self).__init__()
 
@@ -41,12 +41,16 @@ class Boid(QGraphicsItem):
     # paint() and boundingRect() are QGraphicsItem methods
 
     def paint(self, painter, options, widget):
+        painter.setBrush(Qt.white)
         painter.setRenderHint(QPainter.Antialiasing)
-        painter.drawEllipse(self.x, self.y, 10, 10)
+        painter.drawEllipse(0, 0, 2*self.radius, 2*self.radius)
 
 
     def boundingRect(self):
-        return QRectF(self.x-5, self.y-5, 10, 10)
+        penWidth = 1
+        # The following margin makes the scene expand before the boids hit the border
+        margin = self.radius * 10
+        return QRectF(-self.radius - penWidth/2 - margin/2, -self.radius - penWidth/2 -margin/2, 2*self.radius + penWidth + margin/2, 2*self.radius + penWidth + margin/2)
     
 
     def update_self(self, neighbours):
@@ -54,8 +58,6 @@ class Boid(QGraphicsItem):
         self.vx += self.ax
         self.vy += self.ay
         self.vx, self.vy = truncate_vector(self.vx, self.vy, self.max_speed)
-        self.x += self.vx
-        self.y += self.vy
 
 
     def calculate_acceleration(self, neighbours):
@@ -72,33 +74,44 @@ class Boid(QGraphicsItem):
         ay_a *= self.parameters.weight_alignment
         
         sum_weights = self.parameters.weight_cohesion + self.parameters.weight_separation + self.parameters.weight_alignment
-        return truncate_vector((ax_c + ax_s + ax_a)/sum_weights, (ay_c + ay_s + ay_a)/sum_weights, self.max_accel)
 
+        ax_r, ay_r = self.randomize_movement()
+        ax_r *= self.parameters.random_effect
+        ay_r *= self.parameters.random_effect
+
+        ax, ay = truncate_vector((ax_c + ax_s + ax_a)/sum_weights, (ay_c + ay_s + ay_a)/sum_weights, self.max_accel)
+        ax += ax_r
+        ay += ay_r
+        return ax, ay
 
     def calculate_cohesion_preference(self, neighbours):
         x = y = 0
         for boid in neighbours:
-            x += boid.x
-            y += boid.y
+            x += boid.pos().x()
+            y += boid.pos().y()
         x /= len(neighbours)
         y /= len(neighbours)
-        ax = x - self.x
-        ay = y - self.y
+        ax = (x - self.pos().x()) / 3
+        ay = (y - self.pos().y()) / 3
         return ax, ay
 
 
     def calculate_separation_preference(self, neighbours):
         ax = ay = 0
         for boid in neighbours:
-            x = self.x - boid.x
-            y = self.y - boid.y
+            x = self.pos().x() - boid.pos().x()
+            y = self.pos().y() - boid.pos().y()
             x, y = normalize_vector(x, y)
-            dist = math.sqrt((boid.x - self.x)**2 + (boid.y - self.y)**2)
-            x /= dist
-            y /= dist
+            dist = math.sqrt((boid.pos().x() - self.pos().x())**2 + (boid.pos().y() - self.pos().y())**2) - 2*self.radius
+            if dist > 0:
+                x /= dist
+                y /= dist
+            else:
+                x /= 0.000001
+                y /= 0.000001
             ax += x
             ay += y
-        return ax, ay
+        return ax*20, ay*20
 
 
     def calculate_alignment_preference(self, neighbours):
@@ -110,6 +123,12 @@ class Boid(QGraphicsItem):
         vy /= len(neighbours)
         ax = vx - self.vx
         ay = vy - self.vy
+        return ax, ay
+
+
+    def randomize_movement(self):
+        ax = random.random()
+        ay = random.random()
         return ax, ay
 
     

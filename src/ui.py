@@ -1,5 +1,6 @@
-from PyQt5.QtWidgets import QWidget, QFileDialog, QMessageBox, QGraphicsScene
-from PyQt5.QtCore import Qt, pyqtSlot, QTimer
+from PyQt5.QtWidgets import QWidget, QFileDialog, QMessageBox, QGraphicsScene, QGraphicsView
+from PyQt5.QtCore import Qt, pyqtSlot, QTimer, QPointF
+from PyQt5.QtGui import QBrush, QTransform
 from PyQt5 import uic
 from simulation import Simulation
 
@@ -18,6 +19,7 @@ class ApplicationWidget:
         self.window.slider_cohesion.valueChanged.connect(self.sliders_updated)
         self.window.slider_separation.valueChanged.connect(self.sliders_updated)
         self.window.slider_boid_count.valueChanged.connect(self.sliders_updated)
+        self.window.slider_random.valueChanged.connect(self.sliders_updated)
 
         self.window.btn_load.clicked.connect(self.load_parameters)
         self.window.btn_save.clicked.connect(self.save_parameters)
@@ -26,6 +28,11 @@ class ApplicationWidget:
         self.window.btn_start.clicked.connect(self.start_simulation)
         self.window.btn_pause.clicked.connect(self.pause_simulation)
         self.window.btn_stop.clicked.connect(self.stop_simulation)
+        
+        self.window.simulation_canvas.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.window.simulation_canvas.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.window.simulation_canvas.setTransformationAnchor(QGraphicsView.NoAnchor)
+        self.window.simulation_canvas.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
 
         self.scene = self.create_scene()
 
@@ -44,10 +51,13 @@ class ApplicationWidget:
 
 
     def create_scene(self):
-
         scene = QGraphicsScene()
-        scene.destroyed.connect(self.clean_exit)
-                
+        bgBrush = QBrush(Qt.lightGray, Qt.CrossPattern)
+        bgTransform = QTransform()
+        bgTransform.scale(4, 4)
+        bgBrush.setTransform(bgTransform)
+        scene.setBackgroundBrush(bgBrush)
+        scene.sceneRect = None
         for boid in self.simulation.boids:
             scene.addItem(boid)
         
@@ -62,9 +72,10 @@ class ApplicationWidget:
 
     @pyqtSlot()
     def refresh_simulation(self):
-        if self.status == "RUNNING":
-            self.simulation.refresh()
+        self.simulation.refresh(self.status == "RUNNING")
         self.scene.invalidate()
+        self.window.simulation_canvas.fitInView(self.simulation.view_x, self.simulation.view_y, \
+                self.simulation.view_w, self.simulation.view_h, Qt.KeepAspectRatio)
 
 
     @pyqtSlot()
@@ -73,6 +84,7 @@ class ApplicationWidget:
         self.window.lab_alignment.setText("Alignment weight: {0:3d}".format(self.window.slider_alignment.value()))
         self.window.lab_cohesion.setText("Cohesion weight: {0:3d}".format(self.window.slider_cohesion.value()))
         self.window.lab_separation.setText("Separation weight: {0:3d}".format(self.window.slider_separation.value()))
+        self.window.lab_random.setText("Random movement: {0:3d}".format(self.window.slider_random.value()))
 
 
     def update_parameters(self):
@@ -80,12 +92,14 @@ class ApplicationWidget:
         self.window.slider_alignment.setValue(self.simulation.params.weight_alignment)
         self.window.slider_cohesion.setValue(self.simulation.params.weight_cohesion)
         self.window.slider_separation.setValue(self.simulation.params.weight_separation)
+        self.window.slider_random.setValue(self.simulation.params.random_effect)
 
         self.sliders_updated()
 
 
     @pyqtSlot()
     def save_parameters(self):
+        self.apply_settings()
         file_name = QFileDialog.getSaveFileName()[0]
         if file_name == "":
             return
@@ -117,14 +131,12 @@ class ApplicationWidget:
         self.simulation.params.weight_alignment = self.window.slider_alignment.value()
         self.simulation.params.weight_cohesion = self.window.slider_cohesion.value()
         self.simulation.params.weight_separation = self.window.slider_separation.value()
+        self.simulation.params.random_effect = self.window.slider_random.value()
 
     
     @pyqtSlot()
     def start_simulation(self):
         if self.status == "STOPPED" or self.status == "PAUSED":
-            if self.status == "STOPPED":
-                self.simulation.reset()
-                self.scene = self.create_scene()
 
             self.window.btn_start.setText("Start")
             self.window.lab_status.setText("Simulation running.")
@@ -134,7 +146,6 @@ class ApplicationWidget:
             self.window.btn_stop.setEnabled(True)
             
             self.status = "RUNNING"
-
     
 
     @pyqtSlot()
@@ -159,6 +170,9 @@ class ApplicationWidget:
             self.window.btn_start.setEnabled(True)
             self.window.btn_pause.setEnabled(False)
             self.window.btn_stop.setEnabled(False)
+
+            self.simulation.reset()
+            self.scene = self.create_scene()
 
             self.status = "STOPPED"
 

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>540</width>
-    <height>284</height>
+    <height>323</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -38,7 +38,7 @@
        </attribute>
        <layout class="QGridLayout" name="gridLayout_2">
         <item row="0" column="0">
-         <widget class="QWidget" name="widget" native="true">
+         <widget class="QWidget" name="layout_count" native="true">
           <layout class="QHBoxLayout" name="horizontalLayout_3">
            <item>
             <widget class="QLabel" name="lab_boid_count">
@@ -81,14 +81,40 @@
           </layout>
          </widget>
         </item>
+        <item row="8" column="0">
+         <spacer name="spacer_end">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
         <item row="6" column="0">
+         <widget class="QPushButton" name="btn_apply">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Apply</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="0">
          <widget class="Line" name="line">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>
-        <item row="9" column="0">
+        <item row="10" column="0">
          <layout class="QHBoxLayout" name="layout_saveload">
           <item>
            <widget class="QPushButton" name="btn_load">
@@ -123,19 +149,6 @@
            </widget>
           </item>
          </layout>
-        </item>
-        <item row="5" column="0">
-         <widget class="QPushButton" name="btn_apply">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Apply</string>
-          </property>
-         </widget>
         </item>
         <item row="4" column="0">
          <widget class="QGroupBox" name="weights_group">
@@ -216,18 +229,28 @@
           </layout>
          </widget>
         </item>
-        <item row="7" column="0">
-         <spacer name="spacer_end">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
+        <item row="1" column="0">
+         <widget class="QWidget" name="layout_random" native="true">
+          <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <item>
+            <widget class="QLabel" name="lab_random">
+             <property name="text">
+              <string>Random movement: XXX</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSlider" name="slider_random">
+             <property name="maximum">
+              <number>100</number>
+             </property>
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
         </item>
        </layout>
       </widget>
