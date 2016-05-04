@@ -2,7 +2,7 @@ from parameters import Parameters
 from boid import Boid
 from PyQt5.QtCore import pyqtSlot
 
-from math import sqrt
+from math import sqrt, floor
 
 class Simulation:
 
@@ -15,8 +15,11 @@ class Simulation:
 
     def reset(self):
         self.boids = []
+        col = floor(sqrt(self.params.boid_count))
         for i in range(self.params.boid_count):
-            self.boids.append(Boid(0, 0, self.params))
+            x = i % col
+            y = i // col
+            self.boids.append(Boid(x*20, y*20, self.params))
 
 
     def refresh(self):
@@ -37,12 +40,10 @@ class Simulation:
         neighbours = {}
 
         for b in self.boids:
-            x2 = b.x
-            y2 = b.y
-            dist = sqrt((x1-x2)**2 + (y1-y2)**2)
-
-            # Don't add the boid itself
-            if dist != 0:
+            if b != boid:
+                x2 = b.x
+                y2 = b.y
+                dist = sqrt((x1-x2)**2 + (y1-y2)**2)
                 neighbours[dist] = b
         
-        return [neighbours[i] for i in sorted(neighbours)]
+        return [neighbours[i] for i in sorted(neighbours)][0:n]

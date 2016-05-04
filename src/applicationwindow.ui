@@ -154,7 +154,7 @@
              <item row="1" column="0">
               <widget class="QLabel" name="lab_cohesion">
                <property name="text">
-                <string>Cohesion weight: XX</string>
+                <string>Cohesion weight: XXX</string>
                </property>
               </widget>
              </item>
@@ -164,7 +164,7 @@
                 <number>1</number>
                </property>
                <property name="maximum">
-                <number>10</number>
+                <number>100</number>
                </property>
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
@@ -174,7 +174,7 @@
              <item row="2" column="0">
               <widget class="QLabel" name="lab_separation">
                <property name="text">
-                <string>Separation weight: XX</string>
+                <string>Separation weight: XXX</string>
                </property>
               </widget>
              </item>
@@ -184,7 +184,7 @@
                 <number>1</number>
                </property>
                <property name="maximum">
-                <number>10</number>
+                <number>100</number>
                </property>
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
@@ -194,7 +194,7 @@
              <item row="3" column="0">
               <widget class="QLabel" name="lab_alignment">
                <property name="text">
-                <string>Alignment weight: XX</string>
+                <string>Alignment weight: XXX</string>
                </property>
               </widget>
              </item>
@@ -204,7 +204,7 @@
                 <number>1</number>
                </property>
                <property name="maximum">
-                <number>10</number>
+                <number>100</number>
                </property>
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>

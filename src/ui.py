@@ -70,9 +70,9 @@ class ApplicationWidget:
     @pyqtSlot()
     def sliders_updated(self):
         self.window.lab_boid_count.setText("Amount of boids: {0:3d}".format(self.window.slider_boid_count.value()))
-        self.window.lab_alignment.setText("Alignment weight: {0:2d}".format(self.window.slider_alignment.value()))
-        self.window.lab_cohesion.setText("Cohesion weight: {0:2d}".format(self.window.slider_cohesion.value()))
-        self.window.lab_separation.setText("Separation weight: {0:2d}".format(self.window.slider_separation.value()))
+        self.window.lab_alignment.setText("Alignment weight: {0:3d}".format(self.window.slider_alignment.value()))
+        self.window.lab_cohesion.setText("Cohesion weight: {0:3d}".format(self.window.slider_cohesion.value()))
+        self.window.lab_separation.setText("Separation weight: {0:3d}".format(self.window.slider_separation.value()))
 
 
     def update_parameters(self):
