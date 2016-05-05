@@ -49,23 +49,10 @@ class Simulation:
         x1 = boid.pos().x()
         y1 = boid.pos().y()
 
-        # Stores distance:boid pairs
-        neighbours = {}
-
-        for b in self.boids:
-            if b != boid:
-                x2 = b.pos().x()
-                y2 = b.pos().y()
-                dist = sqrt((x1-x2)**2 + (y1-y2)**2)
-                neighbours[dist] = b
+        neighbours = sorted(self.boids, key = lambda b: sqrt(b.pos().x()**2+b.pos().y()**2) - sqrt(x1**2+y1**2))
+        neighbours.pop(0)
         
-        '''
-        lst = [neighbours[i] for i in sorted(neighbours) if i < r]
-        if len(lst) >= n:
-            return lst
-        '''
-
-        return [neighbours[i] for i in sorted(neighbours)][0:n]
+        return neighbours[0:n]
 
 
     def update_viewport(self):
