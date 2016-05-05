@@ -21,17 +21,19 @@ class Boid(QGraphicsItem):
 
     parameters = None
 
-    max_speed = 5
-    max_accel = 0.5
+    max_speed = 10
+    max_accel = 1
 
     radius = 5
 
-    def __init__(self, parameters):
+    def __init__(self, parameters, x, y):
 
         super(Boid, self).__init__()
+        
+        self.setPos(x, y)
 
-        self.vx = random.randint(-5,5)
-        self.vy = random.randint(-5,5)
+        self.vx = random.uniform(-10,10)
+        self.vy = random.uniform(-10,10)
 
         self.ax = 0
         self.ay = 0
@@ -50,13 +52,16 @@ class Boid(QGraphicsItem):
         penWidth = 1
         # The following margin makes the scene expand before the boids hit the border
         margin = self.radius * 10
-        return QRectF(-self.radius - penWidth/2 - margin/2, -self.radius - penWidth/2 -margin/2, 2*self.radius + penWidth + margin/2, 2*self.radius + penWidth + margin/2)
+        return QRectF(-self.radius - penWidth/2 - margin, -self.radius - penWidth/2 - margin, 2*self.radius + penWidth + margin*2, 2*self.radius + penWidth + margin*2)
     
 
     def update_self(self, neighbours):
         self.ax, self.ay = self.calculate_acceleration(neighbours)
         self.vx += self.ax
         self.vy += self.ay
+        vx_r, vy_r = self.randomize()
+        self.vx += vx_r
+        self.vy += vy_r
         self.vx, self.vy = truncate_vector(self.vx, self.vy, self.max_speed)
 
 
@@ -75,14 +80,9 @@ class Boid(QGraphicsItem):
         
         sum_weights = self.parameters.weight_cohesion + self.parameters.weight_separation + self.parameters.weight_alignment
 
-        ax_r, ay_r = self.randomize_movement()
-        ax_r *= self.parameters.random_effect
-        ay_r *= self.parameters.random_effect
-
         ax, ay = truncate_vector((ax_c + ax_s + ax_a)/sum_weights, (ay_c + ay_s + ay_a)/sum_weights, self.max_accel)
-        ax += ax_r
-        ay += ay_r
         return ax, ay
+
 
     def calculate_cohesion_preference(self, neighbours):
         x = y = 0
@@ -126,10 +126,12 @@ class Boid(QGraphicsItem):
         return ax, ay
 
 
-    def randomize_movement(self):
-        ax = random.random()
-        ay = random.random()
-        return ax, ay
+    def randomize(self):
+        upper = self.parameters.random_effect
+        v_term = math.sqrt(self.vx**2+self.vy**2) / self.max_speed
+        vx = random.uniform(-upper, upper) * v_term
+        vy = random.uniform(-upper, upper) * v_term
+        return vx, vy
 
     
 def truncate_vector(x, y, max_value):

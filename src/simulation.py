@@ -2,7 +2,7 @@ from parameters import Parameters
 from boid import Boid
 
 from math import sqrt, floor
-import statistics
+import statistics, random
 
 class Simulation:
 
@@ -18,12 +18,11 @@ class Simulation:
 
     def reset(self):
         self.boids = []
-        col = floor(sqrt(self.params.boid_count))
+        upper = self.params.boid_count * 10
         for i in range(self.params.boid_count):
-            x = i % col
-            y = i // col
-            b = Boid(self.params)
-            b.setPos(x*20, y*20)
+            x = random.uniform(-upper, upper)
+            y = random.uniform(-upper, upper)
+            b = Boid(self.params, x, y)
             self.boids.append(b)
 
         self.update_viewport()
@@ -31,7 +30,7 @@ class Simulation:
 
     def refresh(self, advance=False):
         if advance:
-            n = floor(len(self.boids) / 2)
+            n = floor(len(self.boids) / 4)
             for boid in self.boids:
                 boid.update_self(self.get_neighbours(boid, n))
                 boid.setPos(boid.pos().x() + boid.vx, boid.pos().y() + boid.vy)
@@ -75,6 +74,6 @@ class Simulation:
 
         self.view_x = x_mean - x_dev*4
         self.view_y = y_mean - y_dev*4
-        self.view_w = x_dev * 8
-        self.view_h = y_dev * 8
+        self.view_w = x_dev * 6
+        self.view_h = y_dev * 6
 

@@ -54,7 +54,7 @@ class ApplicationWidget:
         scene = QGraphicsScene()
         bgBrush = QBrush(Qt.lightGray, Qt.CrossPattern)
         bgTransform = QTransform()
-        bgTransform.scale(4, 4)
+        bgTransform.scale(16, 16)
         bgBrush.setTransform(bgTransform)
         scene.setBackgroundBrush(bgBrush)
         scene.sceneRect = None
