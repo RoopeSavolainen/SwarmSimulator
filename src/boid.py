@@ -21,10 +21,10 @@ class Boid(QGraphicsItem):
 
     parameters = None
 
-    max_speed = 10
+    max_speed = 5
     max_accel = 1
 
-    radius = 5
+    radius = 10
 
     def __init__(self, parameters, x, y):
 
@@ -32,8 +32,8 @@ class Boid(QGraphicsItem):
         
         self.setPos(x, y)
 
-        self.vx = random.uniform(-10,10)
-        self.vy = random.uniform(-10,10)
+        self.vx = random.uniform(-5,5)
+        self.vy = random.uniform(-5,5)
 
         self.ax = 0
         self.ay = 0
@@ -57,12 +57,13 @@ class Boid(QGraphicsItem):
 
     def update_self(self, neighbours):
         self.ax, self.ay = self.calculate_acceleration(neighbours)
+        ax_r, ay_r = self.randomize()
+        self.ax += ax_r
+        self.ay += ay_r
         self.vx += self.ax
         self.vy += self.ay
-        vx_r, vy_r = self.randomize()
-        self.vx += vx_r
-        self.vy += vy_r
         self.vx, self.vy = truncate_vector(self.vx, self.vy, self.max_speed)
+        self.setPos(self.pos().x() + self.vx, self.pos().y() + self.vy)
 
 
     def calculate_acceleration(self, neighbours):
@@ -129,9 +130,9 @@ class Boid(QGraphicsItem):
     def randomize(self):
         upper = self.parameters.random_effect
         v_term = math.sqrt(self.vx**2+self.vy**2) / self.max_speed
-        vx = random.uniform(-upper, upper) * v_term
-        vy = random.uniform(-upper, upper) * v_term
-        return vx, vy
+        x = random.uniform(-upper, upper) * v_term
+        y = random.uniform(-upper, upper) * v_term
+        return x, y
 
     
 def truncate_vector(x, y, max_value):

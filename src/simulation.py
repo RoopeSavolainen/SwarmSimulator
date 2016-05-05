@@ -32,8 +32,7 @@ class Simulation:
         if advance:
             n = floor(len(self.boids) / 4)
             for boid in self.boids:
-                boid.update_self(self.get_neighbours(boid, n))
-                boid.setPos(boid.pos().x() + boid.vx, boid.pos().y() + boid.vy)
+                boid.update_self(self.get_neighbours(boid, n=n))
             self.update_viewport()
 
 
@@ -41,7 +40,7 @@ class Simulation:
         self.reset()
 
 
-    # Returns a list containing a maximum of n nearest boids
+    # Returns a list of a minimum of n nearest boids
     def get_neighbours(self, boid, n=None):
         
         if n == None:
@@ -60,6 +59,12 @@ class Simulation:
                 dist = sqrt((x1-x2)**2 + (y1-y2)**2)
                 neighbours[dist] = b
         
+        '''
+        lst = [neighbours[i] for i in sorted(neighbours) if i < r]
+        if len(lst) >= n:
+            return lst
+        '''
+
         return [neighbours[i] for i in sorted(neighbours)][0:n]
 
 

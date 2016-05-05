@@ -163,16 +163,15 @@ class ApplicationWidget:
 
     @pyqtSlot()
     def stop_simulation(self):
-        if self.status == "RUNNING" or self.status == "PAUSED":
-            self.window.btn_start.setText("Start")
-            self.window.lab_status.setText("Simulation stopped.")
+        self.window.btn_start.setText("Start")
+        self.window.lab_status.setText("Simulation stopped.")
 
-            self.window.btn_start.setEnabled(True)
-            self.window.btn_pause.setEnabled(False)
-            self.window.btn_stop.setEnabled(False)
+        self.window.btn_start.setEnabled(True)
+        self.window.btn_pause.setEnabled(False)
+        self.window.btn_stop.setEnabled(True)
 
-            self.simulation.reset()
-            self.scene = self.create_scene()
+        self.simulation.reset()
+        self.scene = self.create_scene()
 
-            self.status = "STOPPED"
+        self.status = "STOPPED"
 
