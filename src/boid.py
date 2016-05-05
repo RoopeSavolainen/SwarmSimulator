@@ -55,8 +55,8 @@ class Boid(QGraphicsItem):
         return QRectF(-self.radius - penWidth/2 - margin, -self.radius - penWidth/2 - margin, 2*self.radius + penWidth + margin*2, 2*self.radius + penWidth + margin*2)
     
 
-    def update_self(self, neighbours):
-        self.ax, self.ay = self.calculate_acceleration(neighbours)
+    def update_self(self, neighbours, info=False):
+        self.ax, self.ay = self.calculate_acceleration(neighbours, info)
         ax_r, ay_r = self.randomize()
         self.ax += ax_r
         self.ay += ay_r
@@ -66,8 +66,8 @@ class Boid(QGraphicsItem):
         self.setPos(self.pos().x() + self.vx, self.pos().y() + self.vy)
 
 
-    def calculate_acceleration(self, neighbours):
-        ax_c, ay_c = self.calculate_cohesion_preference(neighbours)
+    def calculate_acceleration(self, neighbours, info=False):
+        ax_c, ay_c = self.calculate_cohesion_preference(neighbours, info)
         ax_c *= self.parameters.weight_cohesion
         ay_c *= self.parameters.weight_cohesion
 
@@ -79,19 +79,31 @@ class Boid(QGraphicsItem):
         ax_a *= self.parameters.weight_alignment
         ay_a *= self.parameters.weight_alignment
         
+        if info:
+            print(ax_c, ay_c)
+            print("")
+
         sum_weights = self.parameters.weight_cohesion + self.parameters.weight_separation + self.parameters.weight_alignment
 
         ax, ay = truncate_vector((ax_c + ax_s + ax_a)/sum_weights, (ay_c + ay_s + ay_a)/sum_weights, self.max_accel)
         return ax, ay
 
 
-    def calculate_cohesion_preference(self, neighbours):
+    def calculate_cohesion_preference(self, neighbours, info=False):
         x = y = 0
+        if info:
+            print("n")
         for boid in neighbours:
             x += boid.pos().x()
             y += boid.pos().y()
+            if info:
+                print(boid.pos().x(), boid.pos().y())
         x /= len(neighbours)
         y /= len(neighbours)
+        if info:
+            print("j")
+            print(x, y)
+            print("o", self.pos().x(), self.pos().y())
         ax = (x - self.pos().x()) / 3
         ay = (y - self.pos().y()) / 3
         return ax, ay
@@ -103,7 +115,7 @@ class Boid(QGraphicsItem):
             x = self.pos().x() - boid.pos().x()
             y = self.pos().y() - boid.pos().y()
             x, y = normalize_vector(x, y)
-            dist = math.sqrt((boid.pos().x() - self.pos().x())**2 + (boid.pos().y() - self.pos().y())**2) - 2*self.radius
+            dist = abs( math.sqrt((boid.pos().x() - self.pos().x())**2 + (boid.pos().y() - self.pos().y())**2) - 2*self.radius )
             if dist > 0:
                 x /= dist
                 y /= dist

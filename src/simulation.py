@@ -30,9 +30,9 @@ class Simulation:
 
     def refresh(self, advance=False):
         if advance:
-            n = floor(len(self.boids) / 4)
+            n = floor(len(self.boids) / 2)
             for boid in self.boids:
-                boid.update_self(self.get_neighbours(boid, n=n))
+                boid.update_self(self.get_neighbours(boid, n=n), boid==self.boids[0])
             self.update_viewport()
 
 
@@ -48,11 +48,17 @@ class Simulation:
 
         x1 = boid.pos().x()
         y1 = boid.pos().y()
-
-        neighbours = sorted(self.boids, key = lambda b: sqrt(b.pos().x()**2+b.pos().y()**2) - sqrt(x1**2+y1**2))
-        neighbours.pop(0)
         
-        return neighbours[0:n]
+        neighbours = {}
+
+        for b in self.boids:
+            if b != boid:
+                x2 = b.pos().x()
+                y2 = b.pos().y()
+                dist = sqrt((x1-x2)**2 + (y1-y2)**2)
+                neighbours[dist] = b
+
+        return [neighbours[i] for i in sorted(neighbours)][0:n] 
 
 
     def update_viewport(self):

@@ -10,6 +10,7 @@ class Test(unittest.TestCase):
         x2, y2 = boid.normalize_vector(x1,y1)
         erotus = sqrt(x2**2+y2**2) - 1
         self.assertTrue( abs(erotus) < 0.1 )
+        self.assertTrue( x1 < 0 and y1 > 0 )
 
         x3, y3 = boid.truncate_vector(x1,y1,5.8)
         erotus = sqrt(x3**2+y3**2) - 5.8
@@ -33,18 +34,6 @@ class Test(unittest.TestCase):
         
         self.assertTrue(a_x > 0)
         self.assertTrue(a_y > 0)
-
-
-    def test_neighbors(self):
-        p = parameters.Parameters()
-        s = simulation.Simulation(p)
-        
-        s.boids = [boid.Boid(p, 0, 0), boid.Boid(p, -1, -1), boid.Boid(p, -1, 0), boid.Boid(p, 0, -1), boid.Boid(p, -9, -3), boid.Boid(p, -28, 0)]
-        neighbours = s.get_neighbours(s.boids[0], n=3)
-
-        self.assertEqual(len(neighbours), 3)
-        self.assertTrue(s.boids[1] in neighbours)
-        self.assertFalse(s.boids[0] in neighbours and s.boids[2] in neighbours and s.boids[3] in neighbours)
 
 
 unittest.main()
